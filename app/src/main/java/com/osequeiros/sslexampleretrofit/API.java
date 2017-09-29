@@ -12,12 +12,14 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.Arrays;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
@@ -56,11 +58,11 @@ public class API {
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             OkHttpClient client = null;
-
             try {
                 client = new OkHttpClient.Builder()
                         .addInterceptor(logging)
-                        .sslSocketFactory(getSSLConfig(context).getSocketFactory())
+                        //.sslSocketFactory(getSSLConfig(context).getSocketFactory())
+                        .sslSocketFactory(newSslSocketFactory(context))
                         .hostnameVerifier(new HostnameVerifier() {
                             @Override
                             public boolean verify(String s, SSLSession sslSession) {
@@ -91,6 +93,34 @@ public class API {
         return service;
     }
 
+    private SSLSocketFactory newSslSocketFactory(Context context) {
+        try {
+            KeyStore trusted = KeyStore.getInstance("BKS");
+            InputStream in = context.getResources().openRawResource(R.raw.mykeystore);
+            try {
+                trusted.load(in, "sslexample".toCharArray());
+            } finally {
+                in.close();
+            }
+            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+            tmf.init(trusted);
+
+            final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
+                    .getDefaultAlgorithm());
+            kmf.init(trusted, "sslexample".toCharArray());
+
+
+            // Creating an SSLSocketFactory that uses our TrustManager
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            //sslContext.init(null, trustAllCerts, null);
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
+
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
 
     /**Módulo para recuperar el certificado SSL */
     private static SSLContext getSSLConfig(Context context) throws CertificateException, IOException,
@@ -101,7 +131,7 @@ public class API {
 
         Certificate ca;
         // I'm using Java7. If you used Java6 close it manually with finally.
-        try (InputStream cert = context.getResources().openRawResource(R.raw.uiclientcertificate)) {
+        try (InputStream cert = context.getResources().openRawResource(R.raw.bcpuicertificate)) {
             ca = cf.generateCertificate(cert);
         }
 
@@ -116,8 +146,25 @@ public class API {
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
         tmf.init(keyStore);
 
+        final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                X509Certificate[] cArrr = new X509Certificate[0];
+                return cArrr;
+            }
+
+            @Override
+            public void checkServerTrusted(final X509Certificate[] chain,
+                                           final String authType) throws CertificateException { }
+
+            @Override
+            public void checkClientTrusted(final X509Certificate[] chain,
+                                           final String authType) throws CertificateException { }
+        }};
+
         // Creating an SSLSocketFactory that uses our TrustManager
         SSLContext sslContext = SSLContext.getInstance("TLS");
+        //sslContext.init(null, trustAllCerts, null);
         sslContext.init(null, tmf.getTrustManagers(), null);
 
         return sslContext;

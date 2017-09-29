@@ -9,6 +9,6 @@ import retrofit2.http.GET;
 
 public interface APIService {
 
-    @GET("Interfaz/ValidarConexion")
+    @GET("api/Interfaz/ValidarConexion")
     Call<String> verifyConnection();
 }
