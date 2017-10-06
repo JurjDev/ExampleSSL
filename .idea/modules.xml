@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ExampleSSL.iml" filepath="$PROJECT_DIR$/ExampleSSL.iml" />
-      <module fileurl="file://D:\Development\Android\SSLExampleRetrofit\ExampleSSL\SSLExampleRetrofit.iml" filepath="D:\Development\Android\SSLExampleRetrofit\ExampleSSL\SSLExampleRetrofit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Final SSl.iml" filepath="$PROJECT_DIR$/Final SSl.iml" />
+      <module fileurl="file://D:/Development/Android/SSLExampleRetrofit/ExampleSSL/SSLExampleRetrofit.iml" filepath="D:/Development/Android/SSLExampleRetrofit/ExampleSSL/SSLExampleRetrofit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

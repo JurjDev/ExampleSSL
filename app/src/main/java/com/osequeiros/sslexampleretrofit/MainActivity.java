@@ -15,21 +15,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("Init","Init");
 
-        Call<String> callConnection = API.get().getRetrofitService(getBaseContext())
+        Call<BaseResponse> callConnection = API.get().getRetrofitService(getBaseContext())
                 .verifyConnection();
-        callConnection.enqueue(new Callback<String>() {
+
+        callConnection.enqueue(new Callback<BaseResponse>() {
             @Override
-            public void onResponse(@NonNull Call<String> call,
-                                   @NonNull Response<String> response) {
+            public void onResponse(@NonNull Call<BaseResponse> call,
+                                   @NonNull Response<BaseResponse> response) {
+                Log.d("Init","Response");
                 if (response.isSuccessful()) {
-                    String apiResponse = response.body();
-                    Log.d("tag", apiResponse);
+                    BaseResponse apiResponse = response.body();
+                    Log.d("tag", apiResponse.getMensaje());
+                    Log.d("tag", ""+apiResponse.getCodigo());
+                    Log.d("tag", ""+response.code());
+                }else{
+                    Log.d("Init",""+response.code());
+                    Log.d("Init",""+response.message());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<BaseResponse> call,
+                                  @NonNull Throwable t) {
                 t.printStackTrace();
                 Log.e("tag", t.getMessage());
             }
